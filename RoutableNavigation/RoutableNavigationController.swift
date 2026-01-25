@@ -57,29 +57,27 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
     super.viewDidLoad()
 
     rx.willShow.map { $0.viewController }
-      .withLatestFrom(coordinator.currentRoute) {
-        // (topViewController, currentHashes)
-        return ($0, $1.elements.map { $0.routeHash })
+      .withLatestFrom(coordinator.currentRoute) { topViewController, currentHashes in
+        return (topViewController, currentHashes.elements.map { $0.routeHash })
       }
       .subscribe(with: self) { owner, val in
-        let willShowController = val.0
-        let currentHashes = val.1
+        let (willShowController, currentHashes) = val
 
         let controllerHashes = owner.viewControllers.map { $0.routeHash }
         print("[RoutableNav]: Did received controller change, State hashes: \(currentHashes),  Controller hashes: \(controllerHashes)")
 
-        if !(controllerHashes == currentHashes) {
-          print("[RoutableNav]: Route not match, perfoming adjustment")
+        if controllerHashes != currentHashes {
+          print("[RoutableNav]: Route not match, performing adjustment")
           if
             Array(currentHashes[0..<(currentHashes.endIndex - 1)]) == controllerHashes,
             willShowController.routeHash == controllerHashes.last
           {
-            // 第一类校正: 用户 pop 了最上方的 controller
-            print("[RoutableNav]: Topmost controller poped by user, syncing state change")
+            // Adjustment type 1: the user popped the topmost controller
+            print("[RoutableNav]: Topmost controller popped by user, syncing state change")
             owner.coordinator.pop(performsSideEffect: false)
           } else {
-            // 其他无法处理的场景
-            assertionFailure("Cannot perform route adjustment, route state can be corruped")
+            // Other cases that cannot be handled
+            assertionFailure("Cannot perform route adjustment, route state can be corrupted")
           }
         }
       }

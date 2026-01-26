@@ -56,12 +56,12 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
   open override func viewDidLoad() {
     super.viewDidLoad()
 
-    rx.willShow.map { $0.viewController }
+    rx.didShow.map { $0.viewController }
       .withLatestFrom(coordinator.currentRoute) { topViewController, currentHashes in
         return (topViewController, currentHashes.elements.map { $0.routeHash })
       }
       .subscribe(with: self) { owner, val in
-        let (willShowController, currentHashes) = val
+        let (didShowController, currentHashes) = val
 
         let controllerHashes = owner.viewControllers.map { $0.routeHash }
         print("[RoutableNav]: Did received controller change, State hashes: \(currentHashes),  Controller hashes: \(controllerHashes)")
@@ -70,7 +70,7 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
           print("[RoutableNav]: Route not match, performing adjustment")
           if
             Array(currentHashes[0..<(currentHashes.endIndex - 1)]) == controllerHashes,
-            willShowController.routeHash == controllerHashes.last
+            didShowController.routeHash == controllerHashes.last
           {
             // Adjustment type 1: the user popped the topmost controller
             print("[RoutableNav]: Topmost controller popped by user, syncing state change")

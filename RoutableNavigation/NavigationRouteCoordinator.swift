@@ -95,7 +95,7 @@ public final class NavigationRouteCoordinator<Element: RouteElement> {
 
     var routingActions = [RoutingAction<Element>]()
 
-    if commonSubrouteCount == 0 && newRoute.isEmpty {
+    if commonSubrouteCount == 0 && !newRoute.isEmpty {
       routingActions.append(.replaceRoot(element: newRoute.first!))
       routingActions.append(
         contentsOf: newRoute[1...].map { RoutingAction.push(element: $0) }

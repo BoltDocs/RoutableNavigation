@@ -36,6 +36,8 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
 
   private var disposeBag = DisposeBag()
 
+  private var pendingViewControllers: [UIViewController]?
+
   public let coordinator: NavigationRouteCoordinator<Element>
 
   public init(coordinator: NavigationRouteCoordinator<Element>) {
@@ -103,10 +105,23 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
           }
           return viewControllers
         }
-        // Disable animation to prevent random ordered controllers on delegate calls
-        owner.setViewControllers(destViewControllers, animated: false)
+        if owner.view.window != nil {
+          // Disable animation to prevent random ordered controllers on delegate calls
+          owner.setViewControllers(destViewControllers, animated: false)
+          owner.pendingViewControllers = nil
+        } else {
+          owner.pendingViewControllers = destViewControllers
+        }
       }
       .disposed(by: disposeBag)
+  }
+
+  open override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    if let pendingViewControllers = pendingViewControllers {
+      setViewControllers(pendingViewControllers, animated: false)
+      self.pendingViewControllers = nil
+    }
   }
 
 }

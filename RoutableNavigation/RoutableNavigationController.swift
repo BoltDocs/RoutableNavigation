@@ -24,6 +24,7 @@
 
 import UIKit
 
+import Logging
 import RxSwift
 
 public enum RoutingAction<Element: RouteElement> {
@@ -35,6 +36,8 @@ public enum RoutingAction<Element: RouteElement> {
 open class RoutableNavigationController<Element: RouteElement>: UINavigationController {
 
   private var disposeBag = DisposeBag()
+
+  private let logger = Logger(label: "RoutableNavigation")
 
   private var pendingViewControllers: [UIViewController]?
 
@@ -62,20 +65,20 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
       .withLatestFrom(coordinator.currentRoute) { topViewController, currentHashes in
         return (topViewController, currentHashes.elements.map { $0.routeHash })
       }
-      .subscribe(with: self) { owner, val in
+      .subscribe(with: self) { [logger] owner, val in
         let (didShowController, currentHashes) = val
 
         let controllerHashes = owner.viewControllers.map { $0.routeHash }
-        print("[RoutableNav]: Did received controller change, State hashes: \(currentHashes),  Controller hashes: \(controllerHashes)")
+        logger.debug("Did received controller change, State hashes: \(currentHashes),  Controller hashes: \(controllerHashes)")
 
         if controllerHashes != currentHashes {
-          print("[RoutableNav]: Route not match, performing adjustment")
+          logger.debug("Route not match, performing adjustment")
           if
             Array(currentHashes[0..<(currentHashes.endIndex - 1)]) == controllerHashes,
             didShowController.routeHash == controllerHashes.last
           {
             // Adjustment type 1: the user popped the topmost controller
-            print("[RoutableNav]: Topmost controller popped by user, syncing state change")
+            logger.debug("Topmost controller popped by user, syncing state change")
             owner.coordinator.pop(performsSideEffect: false)
           } else {
             // Other cases that cannot be handled

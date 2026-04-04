@@ -14,6 +14,7 @@ let package = Package(
     ),
   ],
   dependencies: [
+    .package(url: "https://github.com/apple/swift-log.git", .upToNextMinor(from: "1.10.0")),
     .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
     .package(url: "https://github.com/BoltDocs/ObjectAssociationHelper.git", .exact("1.0.0")),
   ],
@@ -21,6 +22,7 @@ let package = Package(
     .target(
       name: "RoutableNavigation",
       dependencies: [
+        .product(name: "Logging", package: "swift-log"),
         .product(name: "RxSwift", package: "RxSwift"),
         .product(name: "RxCocoa", package: "RxSwift"),
         "ObjectAssociationHelper",

@@ -94,7 +94,9 @@ open class RoutableNavigationController<Element: RouteElement>: UINavigationCont
           var viewControllers = viewControllers
           switch action {
           case .pop:
-            viewControllers.removeLast()
+            if !viewControllers.isEmpty {
+              viewControllers.removeLast()
+            }
           case .push(let element):
             if let destViewController = owner.viewController(forRouteElement: element) {
               assert(destViewController.routeHash != nil)

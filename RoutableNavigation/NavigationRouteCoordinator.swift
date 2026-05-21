@@ -71,6 +71,9 @@ public final class NavigationRouteCoordinator<Element: RouteElement> {
 
   public func pop(performsSideEffect: Bool = true) {
     var oldRoute = _currentRoute.value.0.elements
+    guard !oldRoute.isEmpty else {
+      return
+    }
     oldRoute.removeLast()
     changeRoute(oldRoute, performsSideEffect: performsSideEffect)
   }

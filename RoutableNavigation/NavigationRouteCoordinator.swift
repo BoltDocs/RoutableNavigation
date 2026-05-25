@@ -33,6 +33,10 @@ public final class NavigationRouteCoordinator<Element: RouteElement> {
       .map { $0.0 }
   }
 
+  public var currentRouteValue: Route<Element> {
+    return _currentRoute.value.0
+  }
+
   var routingActions: Signal<[RoutingAction<Element>]> {
     return _routingActions.asSignal()
   }
